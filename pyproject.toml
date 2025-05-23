@@ -1,0 +1,17 @@
+[project]
+name = "poetry add flask dash pandas plotly requests python-oauthlib cachetools"
+version = "3.1"
+description = "Extracting the F1 Data and re-evaluating the data acquired from F1 api website."
+authors = [
+    {name = "Chandra Kiran Narala"}
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
