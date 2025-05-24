@@ -1,29 +1,73 @@
-Advanced Performance Analysis & Visualization Platform
+F1 Performance Analysis Platform - Setup Guide
+🏁 Quick Start
+Key Changes Made:
 
-Project Description
+Removed OAuth Authentication - OpenF1 API is free and public, no credentials needed
+Updated API calls - Using simple HTTP requests instead of OAuth
+Enhanced data models - Added more comprehensive F1 data structures
+Improved caching - Better cache management with Redis support
+Fixed dependencies - Proper Poetry configuration
 
-The Advanced Performance Analysis & Visualization Platform is a Python‑powered web application designed to give Formula 1 enthusiasts, analysts, and teams real‑time and historical insights into on‑track performance. By leveraging the OpenF1 API, the platform fetches detailed session data—including lap times, stint information, tyre compounds, sectors, and pit stops—and transforms it into interactive visualizations and key performance metrics.
+📋 Prerequisites
 
-With a modular architecture separating data access, processing, and display, the platform makes it easy to:
+Python 3.10 or higher
+Poetry (recommended) or pip
+Optional: Redis for enhanced caching
 
-Authenticate & Fetch: Securely retrieve session, driver, lap, stint, sector, and pit data via OAuth2 and RESTful calls.
+🚀 Installation
+Option 1: Using Poetry (Recommended)
+bash# Clone or download the project
+cd f1-performance-analysis
 
-Process & Analyze: Compute lap statistics (fastest, average, median, standard deviation), driver‑to‑teammate deltas, tyre degradation curves, stint timelines, and sector breakdowns.
+# Install dependencies
+poetry install
 
-Visualize: Render high‑resolution charts—trends, histograms, bar graphs, Gantt‑style timelines, and more—using Plotly (or Bokeh) within a Dash (or Streamlit) interface.
+# Optional: Install with Redis support
+poetry install --extras redis
 
-Cache & Scale: Integrate in‑memory (cachetools) and optional Redis caching layers to minimize redundant API calls and accelerate responsiveness.
+# Activate virtual environment
+poetry shell
 
-By following best practices in Python development (including clear separation of concerns, environment management with Poetry/pipenv, and containerization via Docker), this project is both maintainable and extensible. Whether you’re comparing lap consistency between teammates, investigating tyre strategies, or diving into sector‑by‑sector performance, this platform delivers a seamless analysis experience.
+# Run the application
+python app.py
+Option 2: Using pip
+bash# Create virtual environment
+python -m venv f1_env
+source f1_env/bin/activate  # On Windows: f1_env\Scripts\activate
 
-Project Goals
+# Install dependencies
+pip install requests pandas dash plotly pydantic cachetools redis
 
-Empower Analysis: Provide F1 fans and data professionals with intuitive tools to explore on‑track performance across any session, driver, or team.
+# Run the application
+python app.py
+🔧 Configuration
+Environment Variables (Optional)
+bash# For Redis caching (optional)
+export REDIS_URL="redis://localhost:6379"
 
-Highlight Key Metrics: Surface actionable insights such as lap time consistency, delta comparisons, and tyre degradation to inform strategy and storytelling.
+# For development
+export FLASK_ENV=development
+Cache Configuration
+The application uses a two-tier caching system:
 
-Modular & Python‑First: Build an end‑to‑end solution purely in Python—no front‑end frameworks required—to streamline development and leverage the rich PyData ecosystem.
+In-memory cache - Always active, 10-minute TTL
+Redis cache - Optional, configurable TTL per data type
 
-Performance & Reliability: Implement robust caching, error‑handling, and configuration management to ensure smooth, low‑latency operation, even under heavy usage.
+🎮 Usage
 
-Extendability: Offer a clear code structure (API layer, processing layer, visualization layer) so that new features—sector analysis, pit stop deep dives, telemetry overlays—can be added w
+Start the application:
+bashpython app.py
+
+Open your browser:
+
+Navigate to http://localhost:8050
+The dashboard will load with the latest available F1 data
+
+
+Explore the features:
+
+Select different drivers from the dropdown
+View lap time trends and distributions
+Compare teammate performance
+Analyze tyre strategies and degradation
+Examine sector times and pit stop performance
