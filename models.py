@@ -1,6 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, validator
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
+import pandas as pd
 
 class Meeting(BaseModel):
     meeting_key: int
@@ -43,7 +44,7 @@ class Driver(BaseModel):
 class Lap(BaseModel):
     session_key: int
     driver_number: int
-    date_start: datetime
+    date_start: Optional[datetime] = None  # Make optional to handle None values
     lap_number: int
     lap_duration: Optional[float] = None  # in seconds
     duration_sector_1: Optional[float] = None
@@ -57,6 +58,18 @@ class Lap(BaseModel):
     i1_speed: Optional[float] = None
     i2_speed: Optional[float] = None
     fl_speed: Optional[float] = None
+    
+    @validator('date_start', pre=True)
+    def validate_date_start(cls, v):
+        """Handle None values for date_start"""
+        if v is None:
+            return None
+        if isinstance(v, str):
+            try:
+                return pd.to_datetime(v)
+            except:
+                return None
+        return v
 
 class Stint(BaseModel):
     session_key: int
@@ -70,9 +83,21 @@ class Stint(BaseModel):
 class Pit(BaseModel):
     session_key: int
     driver_number: int
-    date: datetime
+    date: Optional[datetime] = None  # Make optional
     lap_number: int
     pit_duration: Optional[float] = None  # in seconds
+    
+    @validator('date', pre=True)
+    def validate_date(cls, v):
+        """Handle None values for date"""
+        if v is None:
+            return None
+        if isinstance(v, str):
+            try:
+                return pd.to_datetime(v)
+            except:
+                return None
+        return v
 
 class CarData(BaseModel):
     """
@@ -81,7 +106,7 @@ class CarData(BaseModel):
     """
     session_key: int
     driver_number: int
-    date: datetime
+    date: Optional[datetime] = None  # Make optional
     speed: Optional[float] = None
     rpm: Optional[int] = None
     n_gear: Optional[int] = None
@@ -89,23 +114,47 @@ class CarData(BaseModel):
     brake: Optional[bool] = None
     drs: Optional[int] = None  # 0=closed, 1=open
     
+    @validator('date', pre=True)
+    def validate_date(cls, v):
+        """Handle None values for date"""
+        if v is None:
+            return None
+        if isinstance(v, str):
+            try:
+                return pd.to_datetime(v)
+            except:
+                return None
+        return v
+    
 class Position(BaseModel):
     """
     Car position data with X, Y, Z coordinates
     """
     session_key: int
     driver_number: int 
-    date: datetime
+    date: Optional[datetime] = None  # Make optional
     x: float
     y: float
     z: float
+    
+    @validator('date', pre=True)
+    def validate_date(cls, v):
+        """Handle None values for date"""
+        if v is None:
+            return None
+        if isinstance(v, str):
+            try:
+                return pd.to_datetime(v)
+            except:
+                return None
+        return v
 
 class Weather(BaseModel):
     """
     Weather conditions during session
     """
     session_key: int
-    date: datetime
+    date: Optional[datetime] = None  # Make optional
     air_temperature: Optional[float] = None
     humidity: Optional[float] = None
     pressure: Optional[float] = None
@@ -113,13 +162,25 @@ class Weather(BaseModel):
     track_temperature: Optional[float] = None
     wind_direction: Optional[int] = None
     wind_speed: Optional[float] = None
+    
+    @validator('date', pre=True)
+    def validate_date(cls, v):
+        """Handle None values for date"""
+        if v is None:
+            return None
+        if isinstance(v, str):
+            try:
+                return pd.to_datetime(v)
+            except:
+                return None
+        return v
 
 class RaceControl(BaseModel):
     """
     Race control messages, flags, penalties
     """
     session_key: int
-    date: datetime
+    date: Optional[datetime] = None  # Make optional
     lap_number: Optional[int] = None
     driver_number: Optional[int] = None
     message: str
@@ -127,3 +188,15 @@ class RaceControl(BaseModel):
     flag: Optional[str] = None
     scope: Optional[str] = None
     sector: Optional[int] = None
+    
+    @validator('date', pre=True)
+    def validate_date(cls, v):
+        """Handle None values for date"""
+        if v is None:
+            return None
+        if isinstance(v, str):
+            try:
+                return pd.to_datetime(v)
+            except:
+                return None
+        return v
