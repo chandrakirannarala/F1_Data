@@ -1,4 +1,5 @@
 import requests
+import pandas as pd
 from typing import List, Type, Optional
 from cache import fetch_with_cache
 from models import Meeting, Session, Driver, Lap, Stint, Pit, CarData
@@ -59,7 +60,11 @@ def _parse_list(data: List[dict], model: Type) -> List:
     
     for item in data:
         try:
-            parsed_item = model.parse_obj(item)
+            # Handle both v1 and v2 Pydantic models
+            if hasattr(model, 'parse_obj'):
+                parsed_item = model.parse_obj(item)
+            else:
+                parsed_item = model(**item)
             parsed_items.append(parsed_item)
         except Exception as e:
             errors += 1
@@ -154,6 +159,78 @@ def get_race_control(session_key: int) -> List[dict]:
     return fetch_with_cache_json("race_control", session_key=session_key)
 
 
+def models_to_dataframe(models: List, include_columns: Optional[List[str]] = None) -> pd.DataFrame:
+    """
+    Convert list of Pydantic models to pandas DataFrame.
+    
+    Args:
+        models: List of Pydantic model instances
+        include_columns: Optional list of columns to include (filters others out)
+    
+    Returns:
+        pandas DataFrame
+    """
+    if not models:
+        return pd.DataFrame()
+    
+    # Convert models to dictionaries
+    data = []
+    for model in models:
+        if hasattr(model, 'dict'):
+            # Pydantic v1
+            model_dict = model.dict()
+        elif hasattr(model, 'model_dump'):
+            # Pydantic v2
+            model_dict = model.model_dump()
+        else:
+            # Fallback - try to convert to dict
+            model_dict = dict(model)
+        
+        # Filter columns if specified
+        if include_columns:
+            model_dict = {k: v for k, v in model_dict.items() if k in include_columns}
+        
+        data.append(model_dict)
+    
+    df = pd.DataFrame(data)
+    
+    # Convert time strings to seconds if needed
+    time_columns = ['lap_duration', 'duration_sector_1', 'duration_sector_2', 'duration_sector_3', 'pit_duration']
+    for col in time_columns:
+        if col in df.columns:
+            df[col] = df[col].apply(_convert_time_to_seconds)
+    
+    return df
+
+
+def _convert_time_to_seconds(time_value):
+    """
+    Convert time value to seconds (float).
+    Handles various formats: float, int, "MM:SS.mmm", None
+    """
+    if pd.isna(time_value) or time_value is None:
+        return None
+    
+    if isinstance(time_value, (int, float)):
+        return float(time_value)
+    
+    if isinstance(time_value, str):
+        try:
+            # Handle format like "1:23.456" or "83.456"
+            if ':' in time_value:
+                parts = time_value.split(':')
+                minutes = float(parts[0])
+                seconds = float(parts[1])
+                return minutes * 60 + seconds
+            else:
+                return float(time_value)
+        except (ValueError, IndexError):
+            logger.warning(f"Could not convert time value to seconds: {time_value}")
+            return None
+    
+    return None
+
+
 def test_api_connection():
     """Test API connectivity and data availability."""
     try:
@@ -169,6 +246,11 @@ def test_api_connection():
             if sessions:
                 drivers = get_drivers(sessions[0].session_key)
                 print(f"✓ Found {len(drivers)} drivers in first session")
+                
+                # Test data conversion
+                if drivers:
+                    drivers_df = models_to_dataframe(drivers)
+                    print(f"✓ Successfully converted {len(drivers_df)} drivers to DataFrame")
                 
             return True
         else:
