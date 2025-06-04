@@ -143,6 +143,30 @@ def team_pace_stats(laps: List[Dict[str, Any]]) -> pd.DataFrame:
     return team_stats
 
 
+def overall_team_pace(laps: List[Dict[str, Any]]) -> pd.DataFrame:
+    """Aggregate average pace per team."""
+    if not laps:
+        return pd.DataFrame()
+
+    df = pd.DataFrame(laps)
+    df["lap_duration_seconds"] = df["lap_duration"].apply(convert_time_to_seconds)
+
+    valid_df = df[
+        (df["lap_duration_seconds"].notna())
+        & (df["lap_duration_seconds"] > 0)
+        & (~df.get("is_pit_out_lap", False))
+    ]
+
+    if valid_df.empty:
+        return pd.DataFrame()
+
+    team_avg = (
+        valid_df.groupby("team_name")["lap_duration_seconds"].mean().reset_index()
+    )
+
+    return team_avg.sort_values("lap_duration_seconds")
+
+
 def tyre_degradation(laps: List[Dict[str, Any]], stints: List[Dict[str, Any]]) -> pd.DataFrame:
     """Analyze tyre degradation patterns."""
     if not laps or not stints:
