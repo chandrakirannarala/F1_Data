@@ -7,8 +7,8 @@ class Meeting(BaseModel):
     meeting_key: int
     year: int
     meeting_name: str
-    meeting_country: str
-    meeting_circuit: str
+    meeting_country: Optional[str] = None # Made Optional
+    meeting_circuit: Optional[str] = None # Made Optional
     date_start: datetime
     gmt_offset: str
     meeting_official_name: str
@@ -22,7 +22,7 @@ class Session(BaseModel):
     date_start: datetime
     date_end: datetime
     gmt_offset: str
-    country_code: str
+    country_code: str # Assuming this comes from session data, not meeting directly for display
     country_key: int
     country_name: str
     circuit_key: int
@@ -44,9 +44,9 @@ class Driver(BaseModel):
 class Lap(BaseModel):
     session_key: int
     driver_number: int
-    date_start: Optional[datetime] = None  # Make optional to handle None values
+    date_start: Optional[datetime] = None
     lap_number: int
-    lap_duration: Optional[float] = None  # in seconds
+    lap_duration: Optional[float] = None
     duration_sector_1: Optional[float] = None
     duration_sector_2: Optional[float] = None
     duration_sector_3: Optional[float] = None
@@ -61,7 +61,6 @@ class Lap(BaseModel):
     
     @validator('date_start', pre=True)
     def validate_date_start(cls, v):
-        """Handle None values for date_start"""
         if v is None:
             return None
         if isinstance(v, str):
@@ -83,13 +82,12 @@ class Stint(BaseModel):
 class Pit(BaseModel):
     session_key: int
     driver_number: int
-    date: Optional[datetime] = None  # Make optional
+    date: Optional[datetime] = None
     lap_number: int
-    pit_duration: Optional[float] = None  # in seconds
+    pit_duration: Optional[float] = None
     
     @validator('date', pre=True)
     def validate_date(cls, v):
-        """Handle None values for date"""
         if v is None:
             return None
         if isinstance(v, str):
@@ -100,23 +98,18 @@ class Pit(BaseModel):
         return v
 
 class CarData(BaseModel):
-    """
-    Car telemetry data sampled at ~3.7Hz
-    Contains speed, RPM, gear, throttle, brake, DRS status
-    """
     session_key: int
     driver_number: int
-    date: Optional[datetime] = None  # Make optional
+    date: Optional[datetime] = None
     speed: Optional[float] = None
     rpm: Optional[int] = None
     n_gear: Optional[int] = None
-    throttle: Optional[float] = None  # 0-100%
+    throttle: Optional[float] = None
     brake: Optional[bool] = None
-    drs: Optional[int] = None  # 0=closed, 1=open
+    drs: Optional[int] = None
     
     @validator('date', pre=True)
-    def validate_date(cls, v):
-        """Handle None values for date"""
+    def validate_date_car(cls, v): # Renamed validator to avoid conflict if copy-pasting
         if v is None:
             return None
         if isinstance(v, str):
@@ -127,19 +120,15 @@ class CarData(BaseModel):
         return v
     
 class Position(BaseModel):
-    """
-    Car position data with X, Y, Z coordinates
-    """
     session_key: int
     driver_number: int 
-    date: Optional[datetime] = None  # Make optional
+    date: Optional[datetime] = None
     x: float
     y: float
     z: float
     
     @validator('date', pre=True)
-    def validate_date(cls, v):
-        """Handle None values for date"""
+    def validate_date_position(cls, v): # Renamed validator
         if v is None:
             return None
         if isinstance(v, str):
@@ -150,11 +139,8 @@ class Position(BaseModel):
         return v
 
 class Weather(BaseModel):
-    """
-    Weather conditions during session
-    """
     session_key: int
-    date: Optional[datetime] = None  # Make optional
+    date: Optional[datetime] = None
     air_temperature: Optional[float] = None
     humidity: Optional[float] = None
     pressure: Optional[float] = None
@@ -164,8 +150,7 @@ class Weather(BaseModel):
     wind_speed: Optional[float] = None
     
     @validator('date', pre=True)
-    def validate_date(cls, v):
-        """Handle None values for date"""
+    def validate_date_weather(cls, v): # Renamed validator
         if v is None:
             return None
         if isinstance(v, str):
@@ -176,11 +161,8 @@ class Weather(BaseModel):
         return v
 
 class RaceControl(BaseModel):
-    """
-    Race control messages, flags, penalties
-    """
     session_key: int
-    date: Optional[datetime] = None  # Make optional
+    date: Optional[datetime] = None
     lap_number: Optional[int] = None
     driver_number: Optional[int] = None
     message: str
@@ -190,8 +172,7 @@ class RaceControl(BaseModel):
     sector: Optional[int] = None
     
     @validator('date', pre=True)
-    def validate_date(cls, v):
-        """Handle None values for date"""
+    def validate_date_racecontrol(cls, v): # Renamed validator
         if v is None:
             return None
         if isinstance(v, str):

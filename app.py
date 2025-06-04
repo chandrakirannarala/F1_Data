@@ -10,7 +10,7 @@ import visualizers
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-st.set_page_config(page_title="🏎️ F1 Performance Dashboard", page_icon="🏁", layout="wide")
+st.set_page_config(page_title="F1 Performance Dashboard", page_icon="🏁", layout="wide")
 
 # --- Sidebar Controls ---
 st.sidebar.title("🔍 Controls")
@@ -136,7 +136,7 @@ else:
 
 
 # --- Main Page Layout ---
-st.title("🏎️ F1 Performance Dashboard")
+st.title("F1 Performance Dashboard")
 st.markdown("Real-time F1 telemetry and performance analysis using OpenF1 API") #
 
 # --- Key Metrics ---
@@ -152,12 +152,12 @@ if selected_session_key and selected_driver_number:
                 stats = processing.lap_stats([lap.dict() for lap in laps_data]) 
                 
                 cols = st.columns(4)
-                cols[0].metric(label="🏁 Fastest Lap", value=stats.get('fastest', 'N/A'))
-                cols[1].metric(label="⚡ Average Lap", value=stats.get('average', 'N/A'))
-                cols[2].metric(label="📊 Total Laps", value=str(len(laps_data)))
+                cols[0].metric(label="Fastest Lap", value=stats.get('fastest', 'N/A'))
+                cols[1].metric(label="Average Lap", value=stats.get('average', 'N/A'))
+                cols[2].metric(label="Total Laps", value=str(len(laps_data)))
                 consistency_val = stats.get('consistency', 0)
                 consistency_str = f"{consistency_val:.2f}%" if isinstance(consistency_val, (float, int)) else "N/A"
-                cols[3].metric(label="🎯 Consistency", value=consistency_str)
+                cols[3].metric(label="Consistency", value=consistency_str)
 
     except Exception as e:
         logger.error(f"Error updating key metrics: {e}")
@@ -168,9 +168,9 @@ else:
 
 # --- Tabs for Charts ---
 if selected_session_key and selected_driver_number:
-    st.header("📈 Analysis Tabs")
+    st.header("Analysis Tabs")
     # Tab structure from original app.py
-    tab1, tab2, tab3, tab4 = st.tabs(["📈 Lap Analysis", "🏆 Team Comparison", "🛞 Tyre Analysis", "⚙️ Advanced"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Lap Analysis", "Team Comparison", "Tyre Analysis", "Advanced"])
 
     with st.spinner("Loading charts..."): # Loading indicator
         with tab1:
@@ -357,7 +357,7 @@ if selected_session_key and selected_driver_number:
                     if filtered_driver_laps_adv:
                         advanced_stats = processing.advanced_performance_metrics(filtered_driver_laps_adv) #
                         if advanced_stats:
-                            st.markdown("#### 📊 Advanced Performance Metrics")
+                            st.markdown("#### Advanced Performance Metrics")
                             cols_adv = st.columns(2)
                             cols_adv[0].markdown(f"**Race Pace:** {advanced_stats.get('race_pace', 'N/A')}")
                             cols_adv[0].markdown(f"**Qualifying Pace:** {advanced_stats.get('qualifying_pace', 'N/A')}")
