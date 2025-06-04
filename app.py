@@ -277,6 +277,12 @@ if selected_session_key and selected_driver_number:
                         else:
                             team_fig = visualizers.plot_team_comparison(team_df) #
                             st.plotly_chart(team_fig, use_container_width=True)
+
+                            # Overall team pace ranking
+                            overall_df = processing.overall_team_pace(filtered_laps_list)
+                            if not overall_df.empty:
+                                pace_fig = visualizers.plot_team_pace(overall_df)
+                                st.plotly_chart(pace_fig, use_container_width=True)
             except Exception as e:
                 logger.error(f"Error in team comparison tab: {e}")
                 st.error(f"Error rendering team comparison: {str(e)}")

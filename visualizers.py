@@ -181,6 +181,37 @@ def plot_team_comparison(df: pd.DataFrame) -> Figure:
     return fig
 
 
+def plot_team_pace(df: pd.DataFrame) -> Figure:
+    """Bar chart ranking teams by average pace."""
+    if df.empty or 'team_name' not in df.columns:
+        return go.Figure().add_annotation(
+            text="No team pace data available",
+            xref="paper",
+            yref="paper",
+            x=0.5,
+            y=0.5,
+            showarrow=False,
+        )
+
+    colors = [TEAM_COLORS.get(team, "#888888") for team in df["team_name"]]
+    fig = go.Figure()
+    fig.add_bar(
+        x=df["team_name"],
+        y=df["lap_duration_seconds"],
+        marker_color=colors,
+        text=[f"{t:.3f}s" for t in df["lap_duration_seconds"]],
+        textposition="outside",
+    )
+    fig.update_layout(
+        title="🚥 Team Pace Ranking",
+        xaxis_title="Team",
+        yaxis_title="Average Lap Time (seconds)",
+        template="plotly_white",
+        xaxis_tickangle=-45,
+    )
+    return fig
+
+
 def plot_pace_by_compound(df: pd.DataFrame) -> Figure:
     """Box plot showing pace by tyre compound."""
     if df.empty:
